@@ -2,33 +2,23 @@ Mulberry Leaf Classification Using EfficientNetB0 and Curriculum Learning
 
 1. Project Overview
 
-This project focuses on classifying images of mulberry leaves into 10 different varieties using deep learning and transfer learning with EfficientNetB0.
+This project focuses on classifying mulberry leaf varieties using deep learning. It uses the EfficientNetB0 convolutional neural network as a feature extractor and investigates whether curriculum learning can improve classification performance compared with random training.
 
-It also investigates whether Curriculum Learning improves classification performance compared with Random Training and Curriculum-Shuffled Training.
-
-Project task: Mulberry leaf variety classification, not disease detection.
+The objective is to identify the variety of a mulberry leaf from an input image. This project performs variety classification, not disease detection.
 
 2. Objectives
 
-* Explore and preprocess the mulberry leaf dataset.
-* Develop an EfficientNetB0-based image classification model.
-* Evaluate classification performance using accuracy and Macro-F1.
-* Compare Random Training, Curriculum Learning, and Curriculum-Shuffled Training.
-* Analyse experimental results, limitations, and potential improvements.
+* Classify mulberry leaves into 10 different varieties.
+* Develop a baseline classification model using EfficientNetB0 with ImageNet-pretrained weights.
+* Investigate curriculum learning as an alternative to random training.
+* Compare the strategies using test accuracy and Macro-F1 score.
+* Analyze the results, limitations, and potential improvements.
 
-3. Dataset
+3. Dataset Description
 
-The dataset contains 5,262 images across 10 mulberry leaf varieties.
+The dataset contains 5,262 mulberry leaf images belonging to 10 varieties.
 
-Dataset Split	Number of Images
-Training	2,977
-Validation	742
-Testing	1,543
-Total	5,262
-
-Image size: 224 × 224 pixels, RGB.
-
-Classes
+Mulberry Leaf Classes
 
 1. ChiangMai60
 2. RedKing
@@ -41,63 +31,65 @@ Classes
 9. TaiwanMeacho
 10. ChiangMaiBuriram60
 
-The validation set is created by splitting the original training directory. The separate test set is used for final evaluation.
+Dataset Split
 
-The test set contains unequal numbers of images per class, making class-wise evaluation important.
+Dataset	Number of Images
+Training	2,977
+Validation	742
+Testing	1,543
+Total	5,262
 
-Note: The dataset is stored locally. Update the dataset paths in the notebook to match your environment.
+Input images are resized to 224 × 224 pixels and processed as RGB images.
 
 4. Methodology
 
-The project consists of two experiments.
+The project investigates two experimental approaches.
 
-Experiment A: EfficientNetB0 Baseline
+Experiment A: Baseline EfficientNetB0
 
-1. Load EfficientNetB0 with ImageNet-pretrained weights.
-2. Freeze the pretrained EfficientNetB0 backbone.
-3. Resize input images to 224 × 224 pixels.
-4. Apply data augmentation to training images.
-5. Add Global Average Pooling, a Dense layer with 128 neurons and ReLU, Dropout (0.3), and a final Dense layer with 10 Softmax outputs.
-6. Train the classification head using the Adam optimizer and categorical cross-entropy.
-7. Monitor validation loss using Early Stopping.
+* Uses EfficientNetB0 with ImageNet-pretrained weights.
+* Keeps the pretrained backbone frozen.
+* Applies Global Average Pooling.
+* Adds a fully connected layer with 128 ReLU units.
+* Uses Dropout with a rate of 0.3.
+* Uses a final Softmax layer with 10 output units.
+* Applies image augmentation during training.
+* Uses Adam optimization with a learning rate of 0.001.
+* Uses categorical cross-entropy as the loss function.
+* Uses early stopping based on validation loss.
 
-Experiment B: Feature Extraction and Training Strategy Comparison
+Experiment B: Training Strategy Comparison
 
-EfficientNetB0 extracts a 1,280-dimensional feature vector from each image. Three training strategies are compared:
+This experiment compares three training strategies using extracted EfficientNetB0 feature vectors.
 
-* Random Training: Training examples are presented in random order.
-* Curriculum Learning: Training begins with easier examples and gradually introduces harder examples.
-* Curriculum-Shuffled: Uses progressively larger curriculum-selected subsets, with examples shuffled within each subset.
+The feature vectors have 1,280 dimensions. A class-centroid cosine-similarity margin heuristic is used to estimate sample difficulty.
 
-Sample difficulty is estimated using cosine-similarity margins between image features and class centroids.
+The strategies are:
 
-The three strategies are evaluated using random seeds 0, 1, and 2.
+* Random Training: Training samples are selected without curriculum-based ordering.
+* Curriculum Learning: Training begins with easier samples and progressively introduces more difficult samples.
+* Curriculum-Shuffled: Uses the curriculum-based sample selection approach with shuffling.
 
-Important: The baseline and feature-extraction experiments use different training pipelines. Their results are not a perfectly controlled, direct comparison.
+The curriculum schedule begins with the easiest 30% of samples and progressively expands to the full training set by epoch 11.
+
+Each strategy is evaluated using three random seeds: 0, 1, and 2.
 
 5. Model Architecture
 
-Component	Configuration
-Base model	EfficientNetB0
-Pretrained weights	ImageNet
-Input shape	224 × 224 × 3
-Number of classes	10
-Pooling	Global Average Pooling
-Hidden layer	Dense, 128 neurons, ReLU
-Regularisation	Dropout, 0.3
-Output layer	Dense, 10 neurons, Softmax
-Optimizer	Adam
-Baseline loss function	Categorical cross-entropy
-Baseline batch size	32
+The baseline model consists of:
 
-Total parameters: 4,214,829
-Trainable parameters: 165,258
+1. Input image of size 224 × 224 × 3.
+2. Pretrained EfficientNetB0 backbone.
+3. Global Average Pooling layer.
+4. Dense layer with 128 ReLU units.
+5. Dropout layer with a rate of 0.3.
+6. Dense Softmax output layer with 10 units.
 
-The baseline freezes the EfficientNetB0 backbone and trains the classification head.
+The baseline model has 4,214,829 total parameters, of which 165,258 are trainable, according to the reported model summary.
 
 6. Experimental Results
 
-Experiment A: EfficientNetB0 Baseline
+Experiment A: Baseline EfficientNetB0
 
 Metric	Result
 Validation Accuracy	77.76%
@@ -105,16 +97,9 @@ Validation Macro-F1	77.75%
 Test Accuracy	77.64%
 Test Macro-F1	76.84%
 
-The baseline validation classification report showed:
-
-* Highest class F1: Kamphaengsaeng42 — 89.31%.
-* Lowest class F1: TaiwanMeacho — 65.82%.
-
-These are validation results, not test results.
-
 Experiment B: Training Strategy Comparison
 
-The following results are the mean across three random seeds.
+The following values are the reported mean test results across three random seeds.
 
 Training Strategy	Mean Test Accuracy	Mean Test Macro-F1
 Random Training	80.62%	80.55%
@@ -123,75 +108,75 @@ Curriculum-Shuffled	80.13%	80.35%
 
 Test Accuracy by Random Seed
 
-Training Strategy	Seed 0	Seed 1	Seed 2
-Random Training	81.59%	79.07%	81.21%
-Curriculum Learning	77.64%	76.86%	77.06%
-Curriculum-Shuffled	79.71%	79.59%	81.08%
+Random Seed	Random Training	Curriculum Learning	Curriculum-Shuffled
+0	81.59%	77.64%	79.71%
+1	79.07%	76.86%	79.59%
+2	81.21%	77.06%	81.08%
 
-Key Finding
+Results Interpretation
 
-Random Training achieved the highest mean test accuracy and Macro-F1 among the three feature-extraction strategies.
+In the training strategy comparison, Random Training achieved the highest mean test accuracy and mean test Macro-F1 among the three strategies.
 
-Curriculum-Shuffled performed similarly to Random Training, while Curriculum Learning achieved lower results in these experiments.
+Curriculum Learning did not outperform Random Training in these experiments. Curriculum-Shuffled performed closer to Random Training.
 
-These findings apply to the tested setup and do not establish that Curriculum Learning is generally ineffective.
+These findings suggest that curriculum learning did not provide a performance improvement under the experimental conditions used in this project.
+
+Important: The baseline experiment and the training strategy comparison use different training pipelines. Their results should not be treated as a perfectly controlled, direct comparison.
 
 7. Evaluation Metrics
 
-* Accuracy: The proportion of predictions that are correct.
-* Macro-F1: The average of the F1 scores calculated separately for each class, giving every class equal weight.
-* Validation metrics: Used to monitor model performance during development.
-* Test metrics: Used to evaluate the trained model on the held-out test set.
+Accuracy
 
-Using both accuracy and Macro-F1 helps assess overall performance and differences in performance across classes.
+Accuracy measures the proportion of correctly classified images out of all evaluated images.
+
+Macro-F1 Score
+
+Macro-F1 calculates the F1 score separately for each class and then takes the unweighted average. It helps evaluate performance across classes, including classes with fewer samples.
+
+Both metrics are used to assess the classification performance of the models.
 
 8. Limitations
 
-* The test set contains unequal numbers of images across classes.
-* The sample-difficulty score is a heuristic based on feature-centroid similarity.
-* The training strategy comparison uses three random seeds.
-* The baseline and feature-extraction experiments use different training pipelines.
-* Generalisation to independently collected images has not been established.
-* The baseline uses a frozen EfficientNetB0 backbone; fine-tuning was not evaluated in this baseline.
+* The dataset may contain an imbalance in the number of images per variety.
+* Sample difficulty is estimated using a class-centroid cosine-similarity margin heuristic.
+* The training strategy comparison uses only three random seeds.
+* The baseline and feature-extraction experiments use different pipelines, limiting direct comparison.
+* The reported experiments do not establish how well the model generalizes to an independent external dataset.
+* The baseline experiment uses a frozen EfficientNetB0 backbone rather than fine-tuning the entire network.
 
 9. Future Improvements
 
-* Increase dataset diversity and improve class balance.
-* Analyse confusion matrices and misclassified images.
-* Investigate alternative difficulty measures and curriculum schedules.
-* Conduct more repeated experiments.
-* Evaluate the model on an independently collected dataset.
-* Compare frozen-backbone training with a controlled fine-tuning experiment.
-* Document the preprocessing pipeline, class mapping, model configuration, and evaluation outputs for reproducibility.
+* Expand the dataset with more diverse images for each variety.
+* Investigate methods to address class imbalance.
+* Evaluate alternative sample-difficulty measures and curriculum schedules.
+* Run experiments with more random seeds for more reliable comparisons.
+* Analyze a confusion matrix and incorrectly classified images to identify challenging varieties.
+* Evaluate the model on an independent dataset.
+* Investigate fine-tuning EfficientNetB0 as a separate experiment.
+* Compare the training strategies under a more tightly controlled experimental setup.
 
-10. Project Structure
+10. Technologies Used
 
-The following is a suggested structure. Adjust it to match the actual files in your repository.
-
-MulberryLeafClassification/
-├── data/
-│   └── README.md
-├── notebooks/
-│   └── MAI_Assignment_Final.ipynb
-├── src/
-├── results/
-├── presentation/
-├── requirements.txt
-└── README.md
+* Python
+* TensorFlow
+* Keras
+* EfficientNetB0
+* NumPy
+* Scikit-learn
+* Matplotlib
 
 11. How to Run
 
-1. Clone or download the repository.
-2. Install the dependencies listed in requirements.txt.
-3. Open MAI_Assignment_Final.ipynb in Jupyter Notebook or Google Colab.
-4. Update the training and testing dataset paths.
+1. Clone or download this repository.
+2. Install the required Python libraries.
+3. Open the project notebook in Jupyter Notebook or Google Colab.
+4. Update the dataset path to match your environment.
 5. Run the notebook cells in order.
-6. Review the generated evaluation metrics and results.
 
-Use dependency versions compatible with the notebook environment. The notebook reports TensorFlow 2.11.0; verify the package versions in requirements.txt before reproducing the experiments.
+The original notebook may use machine-specific dataset paths, so these must be updated before running the experiments.
 
 12. Reproducibility
 
-The reported results correspond to the experiments recorded in the notebook. Re-running the experiments may produce slightly different results depending on random seeds, software versions, and the execution environment.
+The training strategy comparison uses random seeds 0, 1, and 2. Results may vary depending on the software environment, hardware, dataset organization, and training configuration.
 
-For reproducibility, keep the dataset organisation, class mapping, preprocessing steps, model configuration, and evaluation procedure consistent.
+For reproducibility, use the same dataset split, preprocessing steps, model configuration, and training settings as those used in the reported experiments.
