@@ -68,5 +68,6 @@ Best validation accuracy:
 Test accuracy: 
 
 
+!Limage alt](https://github.com/TriptiMishra2003/MTech-AIML-Project_15_MulberryLeafClassification/blob/febaa0e004c0574e3a39a2ae55e0c9a0ff885fdc/Screenshot%202026-10-22%20at%2012.39.10.png)
 
 
