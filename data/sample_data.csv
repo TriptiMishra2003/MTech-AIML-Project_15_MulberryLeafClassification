@@ -1,1 +1,12 @@
+## Image_path,Class_Name,Split
 
+MAI_Dataset/Training set01 ChiangMai60.jpg,ChiangMai60,train
+MAI_Dataset/Training set02 RedKing.jpg,RedKing,train
+MAI_Dataset/Training set03 WhiteKing.jpg,WhiteKing,train
+MAI_Dataset/Training set04 BlackOodTurkey.jpg,BlackOodTurkey,train
+MAI_Dataset/Training set05 TaiwanStraberry.jpg,TaiwanStraberry,train
+MAI_Dataset/Training set06 BlackAustralia.jpg,BlackAustralia,train
+MAI_Dataset/Training set07 Buriram60.jpg,Buriram60,train
+MAI_Dataset/Training set08 Kamphaengsaeng42.jpg,Kamphaengsaeng42,train
+MAI_Dataset/Training set09 TaiwanMeacho.jpg,TaiwanMeacho,train
+MAI_Dataset/Training set10 ChiangMaiBuriram60.jpg,ChiangMaiBuriram60,train
